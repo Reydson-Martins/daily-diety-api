@@ -3,7 +3,9 @@ import { users } from './routes/users'
 import { env } from './env'
 
 const app = fastify()
-app.register(users)
+app.register(users, {
+  prefix: 'users',
+})
 
 app
   .listen({
