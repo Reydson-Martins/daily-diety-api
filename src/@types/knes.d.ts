@@ -9,6 +9,16 @@ declare module 'knex/types/tables' {
       id: string
       created_at: Date
       name: string
+      session_id: string
+    }
+    meals: {
+      id: string
+      id_user: string
+      name: string
+      description: string
+      is_diety: boolean
+      created_at: Date
+      update_at: Date
     }
   }
 }
