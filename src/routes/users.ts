@@ -2,10 +2,16 @@ import { FastifyInstance } from 'fastify'
 import { knex } from '../database'
 import { z } from 'zod'
 import { randomUUID } from 'crypto'
+import { checkSessionId } from '../middleware/check-session-id-cookies'
+import { request } from 'http'
 
 export async function users(app: FastifyInstance) {
-  app.get('/', async () => {
-    const users = await knex.select().table('users')
+  app.get('/', { preHandler: [checkSessionId] }, async (request, reply) => {
+    const { sessionId } = request.cookies
+    const users = await knex
+      .select()
+      .table('users')
+      .where('session_id', sessionId)
     return { users }
   })
   app.post('/', async (request, reply) => {
@@ -16,11 +22,14 @@ export async function users(app: FastifyInstance) {
 
     const { name } = createUserBodySchema.parse(request.body)
 
+    const sessionId = randomUUID()
+
+    /*   
     let sessionId = request.cookies.sessionId
 
     if (!sessionId) {
       sessionId = randomUUID()
-    }
+    } */
 
     reply.cookie('sessionId', sessionId, {
       path: '/',
