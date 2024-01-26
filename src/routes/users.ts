@@ -1,19 +1,22 @@
 import { FastifyInstance } from 'fastify'
 import { knex } from '../database'
-import { z } from 'zod'
+import { string, z } from 'zod'
 import { randomUUID } from 'crypto'
 import { checkSessionId } from '../middleware/check-session-id-cookies'
-import { request } from 'http'
 
 export async function users(app: FastifyInstance) {
-  app.get('/', { preHandler: [checkSessionId] }, async (request, reply) => {
-    const { sessionId } = request.cookies
-    const users = await knex
-      .select()
-      .table('users')
-      .where('session_id', sessionId)
-    return { users }
-  })
+  app.get(
+    '/',
+    { preHandler: [checkSessionId] },
+    async (request, reply) => {
+      const { sessionId } = request.cookies
+      const users = await knex
+        .select()
+        .table('users')
+        .where('session_id', sessionId)
+      return { users }
+    },
+  )
   app.post('/', async (request, reply) => {
     // {id, name, created_at}
     const createUserBodySchema = z.object({
@@ -30,7 +33,9 @@ export async function users(app: FastifyInstance) {
     const userByName = await knex('users').where({ name }).first()
 
     if (userByName) {
-      return reply.status(400).send({ message: 'User already exists' })
+      return reply
+        .status(400)
+        .send({ message: 'User already exists' })
     }
 
     // const sessionId = randomUUID()

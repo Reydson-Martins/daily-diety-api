@@ -1,5 +1,39 @@
 {
-  "extends": [
-    "@rocketseat/eslint-config/node"
-  ]
+  "overrides": [
+    {
+      // Aplica as regras apenas a arquivos TypeScript (.ts e .tsx)
+      "files": ["*.ts", "*.tsx"],
+      "rules": {
+        // Configuração específica para o prettier nos arquivos TypeScript
+        "prettier/prettier": [
+          "error",
+          {
+            // Largura máxima da linha
+            "printWidth": 70,
+            // Número de espaços por tabulação
+            "tabWidth": 2,
+            // Usar aspas simples em vez de duplas
+            "singleQuote": true,
+            // Adicionar vírgula ao final de arrays e objetos
+            "trailingComma": "all",
+            // Adicionar parênteses em torno de funções de seta
+            "arrowParens": "always",
+            // Não adicionar ponto e vírgula no final das declarações
+            "semi": false,
+            // Configuração de linha
+            "endOfLine": "lf"
+          }
+        ]
+      }
+    }
+  ],
+  // Extendendo a configuração de linting fornecida por @rocketseat
+  "extends": ["@rocketseat/eslint-config/node"],
+  // Configurações globais de regras
+  "rules": {
+    // Desativar a regra que exige camelCase
+    "camelcase": "off",
+    // Desativar a regra que proíbe construtores inúteis
+    "no-useless-constructor": "off"
+  }
 }
