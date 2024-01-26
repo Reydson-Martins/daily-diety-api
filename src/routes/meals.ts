@@ -14,7 +14,7 @@ export async function meals(app: FastifyInstance) {
     const createMealsBodySchema = z.object({
       name: z.string(),
       description: z.string(),
-      // is_diety: z.boolean(),
+      is_diety: z.boolean(),
     })
 
     const userId = request.user?.id
@@ -23,18 +23,60 @@ export async function meals(app: FastifyInstance) {
       return reply.status(401).send({ error: 'User not authenticated' })
     }
 
-    const { name, description } = createMealsBodySchema.parse(request.body)
-    console.log(userId)
+    const { name, description, is_diety } = createMealsBodySchema.parse(
+      request.body,
+    )
+
     await knex('meals').insert({
       id: randomUUID(),
       id_user: userId,
       name,
       description,
-      is_diety: false,
+      is_diety,
       created_at: new Date(),
       update_at: new Date(),
     })
 
     return reply.status(201).send()
   })
+
+  app.put(
+    '/:mealId',
+    { preHandler: [checkSessionId] },
+    async (request, reply) => {
+      try {
+        const paramasSchema = z.object({
+          mealId: z.string().uuid(),
+        })
+
+        const updateMealBodySchema = z.object({
+          name: z.string(),
+          description: z.string(),
+          is_diety: z.boolean(),
+        })
+
+        const { mealId } = paramasSchema.parse(request.params)
+        const { name, description, is_diety } = updateMealBodySchema.parse(
+          request.body,
+        )
+
+        const existinMeal = await knex('meals').where({ id: mealId }).first()
+        if (!existinMeal) {
+          return reply.status(404).send({ error: 'Meal not found' })
+        }
+
+        await knex('meals').where({ id: mealId }).update({
+          name,
+          description,
+          is_diety,
+          update_at: new Date(),
+        })
+        return reply.status(200).send({ message: 'Meal Update successfully' })
+      } catch (error) {
+        console.log(error)
+
+        return reply.status(500).send({ error: 'Internal Server Error' })
+      }
+    },
+  )
 }

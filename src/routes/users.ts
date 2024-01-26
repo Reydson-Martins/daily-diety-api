@@ -20,16 +20,20 @@ export async function users(app: FastifyInstance) {
       name: z.string(),
     })
 
-    const { name } = createUserBodySchema.parse(request.body)
-
-    const sessionId = randomUUID()
-
-    /*   
     let sessionId = request.cookies.sessionId
 
     if (!sessionId) {
       sessionId = randomUUID()
-    } */
+    }
+    const { name } = createUserBodySchema.parse(request.body)
+
+    const userByName = await knex('users').where({ name }).first()
+
+    if (userByName) {
+      return reply.status(400).send({ message: 'User already exists' })
+    }
+
+    // const sessionId = randomUUID()
 
     reply.cookie('sessionId', sessionId, {
       path: '/',
